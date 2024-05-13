@@ -1,0 +1,28 @@
+name: "Feature Branch"
+
+on:
+ pull_request:
+   branches:
+   - master
+   - main
+ push:
+    branches:
+      - feature/**
+
+jobs:
+  deploy-dev:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy static site to dev-s3 bucket
+        run: aws s3 sync . s3://dev-s3-bucket-name --delete
